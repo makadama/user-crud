@@ -8,13 +8,10 @@ RUN npm install
 
 COPY prisma ./prisma
 
-RUN npx prisma migrate deploy
+COPY . .  
+
 RUN npx prisma generate
 
-COPY . .
-
 EXPOSE 4000
-
-ENV HOST=0.0.0.0
 
 CMD ["npm", "run", "dev"]

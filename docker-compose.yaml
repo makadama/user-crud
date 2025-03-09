@@ -1,4 +1,24 @@
+version: '3.8'
+
 services:
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: frontend.dockerfile
+    ports:
+      - "3000:3000"  
+    volumes:
+      - ./frontend:/app  
+      - /app/node_modules 
+    environment:
+      - CHOKIDAR_USEPOLLING=true 
+    depends_on:
+      - backend
+    stdin_open: true  
+    tty: true 
+    restart: always
+
   backend:
     container_name: backend
     image: backend
@@ -6,14 +26,17 @@ services:
       context: ./backend
       dockerfile: backend.dockerfile
     ports:
-      - 4000:4000
+      - "4000:4000"
+    volumes:
+      - ./backend:/app  
+      - /app/node_modules 
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres?schema=public
       - JWT_SECRET=my_secret
       - HOST=0.0.0.0
     depends_on:
       db:
-        condition: service_healthy
+        condition: service_healthy  
 
   db:
     container_name: db
@@ -28,7 +51,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
+      test: ["CMD", "pg_isready", "-U", "postgres"]  
       interval: 5s
       retries: 5
       timeout: 5s
