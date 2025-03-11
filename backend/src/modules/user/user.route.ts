@@ -17,12 +17,40 @@ async function userRoutes(server: FastifyInstance) {
     }, loginUserHandler);
 
     server.get('/', {
+        preHandler: server.authenticate,
         schema: {
-            response: { 200: { type: "array", items: { $ref: "createUserResponseSchema" } } },
+            querystring: {
+                type: "object",
+                properties : {
+                    page: {type: "integer", minimum: 1, default: 1},
+                    limit: {type: "integer", minimum: 1, default: 10},
+                }
+            },
+            response: { 200: { type: "object",  properties: {
+                users: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "integer" },
+                        email: { type: "string", format: "email" },
+                        firstName: { type: "string" },
+                        lastName: { type: "string" },
+                        birthDate: { type: "string", format: "date-time" },
+                      },
+                    },
+                  },
+                total: { type: "integer" },
+                page: { type: "integer" },
+                limit: { type: "integer" },
+                totalPages: { type: "integer" },
+              }, } 
+            },
         },
     }, getAllUsersHandler);
 
     server.get('/:id', {
+        preHandler: server.authenticate,
         schema: {
             params: { type: "object", properties: { id: { type: "integer" } }, required: ["id"] },
             response: { 200: { $ref: "createUserResponseSchema" } },
@@ -30,6 +58,7 @@ async function userRoutes(server: FastifyInstance) {
     }, getUserByIdHandler);
 
     server.put('/:id', {
+        preHandler: server.authenticate,
         schema: {
             params: { type: "object", properties: { id: { type: "integer" } }, required: ["id"] },
             body: { $ref: "updateUserSchema" },
@@ -38,6 +67,7 @@ async function userRoutes(server: FastifyInstance) {
     }, updateUserHandler);
 
     server.delete('/:id', {
+        preHandler: server.authenticate,
         schema: {
             params: { type: "object", properties: { id: { type: "integer" } }, required: ["id"] },
             response: { 204: { description: "User deleted successfully" } },

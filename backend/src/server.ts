@@ -38,14 +38,23 @@ function buildServer() {
   });
   
   
-  server.register(cors, {
+  /*server.register(cors, {
     origin: ["http://localhost:3000"],
     credentials: true,
+  });*/
+
+  server.register(cors, {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
   });
+  
 
 
   server.register(fjwt, {
     secret: process.env.JWT_SECRET || "my_secret",
+    sign: {
+      expiresIn: "1h"
+    }
   });
 
   server.decorate(

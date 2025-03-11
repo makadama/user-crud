@@ -21,7 +21,7 @@ export async function createUser(input: CreateUserInput) {
             data: { ...rest, email, password: hashedPassword },
         });
 
-        return { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName };
+        return { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, birthDate: user.birthDate };
     } catch (error) {
         console.error("Database error:", error);
         throw new Error("Failed to create user");
@@ -41,10 +41,29 @@ export async function findUserByEmail(email: string) {
 }
 
 
-export async function getAllUsers() {
-    return prisma.user.findMany({
-        select: { id: true, email: true, firstName: true, lastName: true, birthDate: true },
+export async function getAllUsers(page: number, limit: number) {
+    const skip = (page - 1) * limit; 
+    const totalUsers = await prisma.user.count(); 
+    const users = await prisma.user.findMany({
+        skip,
+        take: limit,
+        orderBy: { id: "asc" },
+        select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            birthDate: true,
+        },
     });
+
+    return {
+        users,
+    total: totalUsers,
+    page,
+    limit,
+    totalPages: Math.ceil(totalUsers / limit),
+  };
 }
 
 

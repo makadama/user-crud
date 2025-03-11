@@ -13,7 +13,11 @@ const userCore = {
   email: z.string().email(),
   firstName: z.string(),
   lastName: z.string(),
-  birthDate: z.string().datetime(),
+  birthDate: z
+  .union([
+    z.string().datetime(),
+    z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"), 
+  ]),
 };
 
 
@@ -37,6 +41,9 @@ export const loginSchema = z.object({
 
 export const loginResponseSchema = z.object({
   accessToken: z.string(),
+  id: idSchema,
+  firstName: z.string(),
+  email: z.string()
 });
 
 
@@ -100,6 +107,9 @@ export const userSchemas = [
     type: "object",
     properties: {
       accessToken: { type: "string" },
+      id: { type: "integer" },
+      firstName: { type: "string" },
+      email: { type: "string", format: "email" },
     },
   },
 ];
